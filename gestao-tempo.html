@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gestão de Tempo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      Tempo
+    </div>
+
+    <div class="nav-label">Visualização</div>
+    <button class="nav-btn active" onclick="setView('hoje')" id="nav-hoje">
+      <i class="ti ti-calendar-today"></i> Hoje
+    </button>
+    <button class="nav-btn" onclick="setView('cronograma')" id="nav-cronograma">
+      <i class="ti ti-clock"></i> Cronograma
+    </button>
+    <button class="nav-btn" onclick="setView('alocacao')" id="nav-alocacao">
+      <i class="ti ti-chart-bar"></i> Alocação
+    </button>
+
+    <div class="nav-label">Áreas da vida</div>
+    <div id="area-chips"></div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="page-title">Hoje</div>
+        <div class="page-subtitle" id="page-subtitle">Domingo, 1 de junho de 2025</div>
+      </div>
+      <div class="date-badge">
+        <i class="ti ti-sun" style="font-size:16px;"></i>
+        <span id="live-time">--:--</span>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metrics" id="metrics"></div>
+
+    <!-- View: Hoje -->
+    <div class="view active" id="view-hoje">
+      <div class="section">
+        <div class="section-head">
+          <span class="section-title">Tarefas</span>
+        </div>
+        <div class="tasks-list">
+          <div id="tasks-container"></div>
+          <div class="add-row">
+            <i class="ti ti-plus" style="font-size:16px; color:var(--text3);"></i>
+            <input class="add-input" id="new-task-input" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter') addTask()" />
+            <select class="add-select" id="new-task-area"></select>
+            <button class="btn-add" onclick="addTask()">Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Cronograma -->
+    <div class="view" id="view-cronograma">
+      <div class="section">
+        <div class="section-head"><span class="section-title">Distribuição sugerida</span></div>
+        <div class="schedule" id="schedule"></div>
+      </div>
+    </div>
+
+    <!-- View: Alocação -->
+    <div class="view" id="view-alocacao">
+      <div class="section">
+        <div class="section-head"><span class="section-title">Horas por área (arraste para ajustar)</span></div>
+        <div class="alloc-grid" id="alloc-grid"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/script.js"></script>
+</body>
+</html>
