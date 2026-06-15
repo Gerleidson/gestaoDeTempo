@@ -5,88 +5,338 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gestão de Tempo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-<div class="app">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <span class="logo-dot"></span>
-      Tempo
+<!-- ═══════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="ti ti-clock-bolt"></i></div>
+      <div class="auth-brand">Gestão de Tempo</div>
+      <div class="auth-tagline">Gestão inteligente do seu tempo</div>
     </div>
 
-    <div class="nav-label">Visualização</div>
-    <button class="nav-btn active" onclick="setView('hoje')" id="nav-hoje">
-      <i class="ti ti-calendar-today"></i> Hoje
-    </button>
-    <button class="nav-btn" onclick="setView('cronograma')" id="nav-cronograma">
-      <i class="ti ti-clock"></i> Cronograma
-    </button>
-    <button class="nav-btn" onclick="setView('alocacao')" id="nav-alocacao">
-      <i class="ti ti-chart-bar"></i> Alocação
-    </button>
-
-    <div class="nav-label">Áreas da vida</div>
-    <div id="area-chips"></div>
-  </aside>
-
-  <!-- Main -->
-  <main class="main">
-    <div class="page-header">
-      <div>
-        <div class="page-title" id="page-title">Hoje</div>
-        <div class="page-subtitle" id="page-subtitle">Domingo, 1 de junho de 2025</div>
-      </div>
-      <div class="date-badge">
-        <i class="ti ti-sun" style="font-size:16px;"></i>
-        <span id="live-time">--:--</span>
-      </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Entrar</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Criar conta</button>
     </div>
 
-    <!-- Métricas -->
-    <div class="metrics" id="metrics"></div>
+    <!-- LOGIN -->
+    <div class="auth-panel active" id="panel-login">
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-input" id="login-email" type="email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-input" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn-primary" onclick="doLogin()"><i class="ti ti-arrow-right"></i> Entrar</button>
+    </div>
 
-    <!-- View: Hoje -->
-    <div class="view active" id="view-hoje">
-      <div class="section">
-        <div class="section-head">
-          <span class="section-title">Tarefas</span>
+    <!-- REGISTER -->
+    <div class="auth-panel" id="panel-register">
+      <div class="form-group">
+        <label class="form-label">Nome completo</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="Seu nome" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">E-mail</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Senha</label>
+        <input class="form-input" id="reg-pass" type="password" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmar senha</label>
+        <input class="form-input" id="reg-pass2" type="password" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')doRegister()" />
+      </div>
+      <button class="btn-primary" onclick="doRegister()"><i class="ti ti-user-plus"></i> Criar conta</button>
+    </div>
+
+    <div class="auth-divider"><span>ou entre com demo</span></div>
+    <button class="btn-secondary" style="width:100%;justify-content:center;display:flex;gap:8px;" onclick="doDemo()">
+      <i class="ti ti-sparkles"></i> Entrar como convidado
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP
+═══════════════════════════════════════ -->
+<div id="app">
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="ti ti-clock-bolt"></i></div>
+          <div class="logo-text">Gestão de Tempo </div>
         </div>
-        <div class="tasks-list">
-          <div id="tasks-container"></div>
-          <div class="add-row">
-            <i class="ti ti-plus" style="font-size:16px; color:var(--text3);"></i>
-            <input class="add-input" id="new-task-input" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter') addTask()" />
-            <select class="add-select" id="new-task-area"></select>
-            <button class="btn-add" onclick="addTask()">Adicionar</button>
+      </div>
+
+      <div class="sidebar-nav">
+        <div class="nav-label">Visualização</div>
+        <button class="nav-btn active" onclick="setView('hoje')" id="nav-hoje">
+          <i class="ti ti-calendar-today"></i> Hoje
+        </button>
+        <button class="nav-btn" onclick="setView('semanal')" id="nav-semanal">
+          <i class="ti ti-calendar-week"></i> Semanal
+        </button>
+        <button class="nav-btn" onclick="setView('cronograma')" id="nav-cronograma">
+          <i class="ti ti-clock"></i> Cronograma
+        </button>
+        <button class="nav-btn" onclick="setView('alocacao')" id="nav-alocacao">
+          <i class="ti ti-chart-bar"></i> Alocação
+        </button>
+
+        <div class="nav-label" style="margin-top:20px;">Áreas da vida</div>
+        <div id="area-chips"></div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Usuário</div>
+          <div class="user-role">Gestão Pessoal</div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" title="Sair"><i class="ti ti-logout"></i></button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="main-inner">
+        <div class="page-header">
+          <div>
+            <div class="page-title" id="page-title">Hoje</div>
+            <div class="page-subtitle" id="page-subtitle">—</div>
+          </div>
+          <div class="date-badge">
+            <i class="ti ti-clock" style="font-size:15px;"></i>
+            <span id="live-time">--:--</span>
+          </div>
+        </div>
+
+        <div class="metrics" id="metrics"></div>
+
+        <!-- VIEW: Hoje -->
+        <div class="view active" id="view-hoje">
+          <div class="section">
+            <div class="section-head"><span class="section-title">Tarefas do dia</span></div>
+            <div class="tasks-list">
+              <div id="tasks-container"></div>
+              <div class="add-row">
+                <i class="ti ti-plus" style="font-size:16px; color:var(--text3);"></i>
+                <input class="add-input" id="new-task-input" placeholder="Nova tarefa..." onkeydown="if(event.key==='Enter') addTask()" />
+                <select class="add-select" id="new-task-area"></select>
+                <button class="btn-add" onclick="addTask()">Adicionar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Semanal -->
+        <div class="view" id="view-semanal">
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">Semana atual</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="prevWeek()">
+                  <i class="ti ti-chevron-left"></i>
+                </button>
+                <span id="week-range" style="font-size:12px;color:var(--text3);display:flex;align-items:center;"></span>
+                <button class="btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="nextWeek()">
+                  <i class="ti ti-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            <div class="week-grid" id="week-grid"></div>
+          </div>
+
+          <div class="week-form-card">
+            <div class="week-form-header">
+              <div class="week-form-title">
+                <i class="ti ti-calendar-plus" style="color:var(--accent2);"></i>
+                <span id="selected-day-label">Programar dia</span>
+              </div>
+              <button class="btn-add" style="padding:7px 14px;font-size:12px;" onclick="addWeekEvent()">
+                <i class="ti ti-plus"></i> Adicionar
+              </button>
+            </div>
+            <div class="week-form-body">
+              <div class="form-row">
+                <div class="form-group-dark">
+                  <label class="form-label-dark">Título da atividade</label>
+                  <input class="form-input-dark" id="we-title" placeholder="Ex: Reunião com equipe" />
+                </div>
+                <div class="form-group-dark">
+                  <label class="form-label-dark">Área</label>
+                  <select class="form-input-dark" id="we-area"></select>
+                </div>
+              </div>
+              <div class="form-row-3">
+                <div class="form-group-dark">
+                  <label class="form-label-dark">Início</label>
+                  <input class="form-input-dark" id="we-start" type="time" value="08:00" />
+                </div>
+                <div class="form-group-dark">
+                  <label class="form-label-dark">Fim</label>
+                  <input class="form-input-dark" id="we-end" type="time" value="09:00" />
+                </div>
+                <div class="form-group-dark">
+                  <label class="form-label-dark">Prioridade</label>
+                  <div class="priority-group">
+                    <button class="priority-btn" id="prio-high" onclick="setPriority('high')">Alta</button>
+                    <button class="priority-btn active-medium" id="prio-medium" onclick="setPriority('medium')">Média</button>
+                    <button class="priority-btn" id="prio-low" onclick="setPriority('low')">Baixa</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group-dark">
+                <label class="form-label-dark">Notas (opcional)</label>
+                <textarea class="form-input-dark form-textarea" id="we-notes" placeholder="Observações sobre esta atividade..."></textarea>
+              </div>
+
+              <div class="section-head" style="margin-top:4px;">
+                <span class="section-title">Atividades programadas</span>
+              </div>
+              <div id="week-events-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: Cronograma -->
+        <div class="view" id="view-cronograma">
+          <div class="section">
+            <div class="section-head">
+              <span class="section-title">Distribuição sugerida do dia</span>
+              <button class="btn-add" style="padding:7px 14px;font-size:12px;" onclick="openAddSchedule()">
+                <i class="ti ti-plus"></i> Novo bloco
+              </button>
+            </div>
+            <div class="schedule" id="schedule"></div>
+          </div>
+        </div>
+
+        <!-- VIEW: Alocação -->
+        <div class="view" id="view-alocacao">
+          <div class="section">
+            <div class="section-head"><span class="section-title">Horas por área — arraste para ajustar</span></div>
+            <div class="alloc-grid" id="alloc-grid"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- View: Cronograma -->
-    <div class="view" id="view-cronograma">
-      <div class="section">
-        <div class="section-head"><span class="section-title">Distribuição sugerida</span></div>
-        <div class="schedule" id="schedule"></div>
-      </div>
+      <!-- FOOTER -->
+      <footer>
+        <div class="footer-brand">
+          <i class="ti ti-clock-bolt" style="color:var(--accent);"></i>
+          <span>Gestão de Tempo</span> · Desenvolvido por Gerleidson
+        </div>
+        <!--<div class="footer-links">
+          <a class="footer-link" href="#">Ajuda</a>
+          <a class="footer-link" href="#">Privacidade</a>
+          <a class="footer-link" href="#">Termos</a>
+        </div>-->
+        <div class="footer-copy">© 2025 Gestão de Tempo · v1.0</div>
+      </footer>
     </div>
-
-    <!-- View: Alocação -->
-    <div class="view" id="view-alocacao">
-      <div class="section">
-        <div class="section-head"><span class="section-title">Horas por área (arraste para ajustar)</span></div>
-        <div class="alloc-grid" id="alloc-grid"></div>
-      </div>
-    </div>
-
-  </main>
+  </div>
 </div>
 
-<script src="js/script.js"></script>
+<!-- MODAL EDITAR BLOCO -->
+<div class="modal-overlay" id="modal-sched">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-sched-heading">Editar bloco</span>
+      <button class="modal-close" onclick="closeModal('modal-sched')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group-dark">
+      <label class="form-label-dark">Horário</label>
+      <input class="form-input-dark" id="ms-time" type="time" />
+    </div>
+    <div class="form-row">
+      <div class="form-group-dark">
+        <label class="form-label-dark">Título</label>
+        <input class="form-input-dark" id="ms-title" placeholder="Ex: Foco profundo" />
+      </div>
+      <div class="form-group-dark">
+        <label class="form-label-dark">Duração</label>
+        <input class="form-input-dark" id="ms-dur" placeholder="Ex: 90 min" />
+      </div>
+    </div>
+    <div class="form-group-dark">
+      <label class="form-label-dark">Área</label>
+      <select class="form-input-dark" id="ms-area"></select>
+    </div>
+    <div class="form-group-dark">
+      <label class="form-label-dark">Descrição</label>
+      <textarea class="form-input-dark form-textarea" id="ms-desc" placeholder="Descrição do bloco..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-sched')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveScheduleBlock()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR EVENTO SEMANAL -->
+<div class="modal-overlay" id="modal-event">
+  <div class="modal">
+    <div class="modal-title">
+      <span>Editar atividade</span>
+      <button class="modal-close" onclick="closeModal('modal-event')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group-dark">
+      <label class="form-label-dark">Título</label>
+      <input class="form-input-dark" id="me-title" />
+    </div>
+    <div class="form-row">
+      <div class="form-group-dark">
+        <label class="form-label-dark">Área</label>
+        <select class="form-input-dark" id="me-area"></select>
+      </div>
+      <div class="form-group-dark">
+        <label class="form-label-dark">Prioridade</label>
+        <select class="form-input-dark" id="me-prio">
+          <option value="high">Alta</option>
+          <option value="medium">Média</option>
+          <option value="low">Baixa</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group-dark">
+        <label class="form-label-dark">Início</label>
+        <input class="form-input-dark" id="me-start" type="time" />
+      </div>
+      <div class="form-group-dark">
+        <label class="form-label-dark">Fim</label>
+        <input class="form-input-dark" id="me-end" type="time" />
+      </div>
+    </div>
+    <div class="form-group-dark">
+      <label class="form-label-dark">Notas</label>
+      <textarea class="form-input-dark form-textarea" id="me-notes"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-event')">Cancelar</button>
+      <button class="btn-confirm" onclick="saveEventEdit()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toasts"></div>
+
+<script src="js/app.js"></script>
 </body>
 </html>
