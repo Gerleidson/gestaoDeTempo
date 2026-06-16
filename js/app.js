@@ -10,7 +10,6 @@ const AREAS = [
   { id:'financas', label:'Finanças', color:'#14C8A8', bg:'rgba(20,200,168,0.14)', dark:'#5EECD6' },
 ];
 
-// Cronograma padrão (template inicial para todos os dias de semana)
 const SCHEDULE_WEEKDAY = [
   { time:'06:30', title:'Ritual de início',           dur:'30 min', area:null,       desc:'Água, alongamento, sem celular. Prepare a mente.' },
   { time:'07:00', title:'Bloco de estudos — foco',    dur:'90 min', area:'estudos',  desc:'Melhor janela cognitiva do dia. Conteúdo mais difícil aqui.' },
@@ -26,28 +25,73 @@ const SCHEDULE_WEEKDAY = [
   { time:'22:00', title:'Ritual de encerramento',     dur:'30 min', area:null,       desc:'Sem telas, leitura leve. Prepare o sono.' },
 ];
 
-const DAY_KEYS = ['dom','seg','ter','qua','qui','sex','sab'];
-const DAY_FULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-const MONTH_FULL = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DAY_KEYS  = ['dom','seg','ter','qua','qui','sex','sab'];
+const DAY_FULL  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MONTH_FULL= ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
-// Cronograma independente por dia
+const STORAGE_KEY = 'gestaoDeTempo_v1';
+
 function makeDefaultSchedule() {
   return JSON.parse(JSON.stringify(SCHEDULE_WEEKDAY)).map((s,i) => ({ ...s, id: i+1 }));
 }
 
-let state = {
+function makeDefaultScheduleByDay() {
+  const obj = {};
+  DAY_KEYS.forEach(k => { obj[k] = makeDefaultSchedule(); });
+  return obj;
+}
+
+/* ═══════════════════════════════════════
+PERSISTÊNCIA — localStorage
+═══════════════════════════════════════ */
+function saveState() {
+  try {
+    const toSave = {
+      user:          state.user,
+      activeAreas:   [...state.activeAreas],
+      scheduleByDay: state.scheduleByDay,
+      selectedCronDay: state.selectedCronDay,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch(e) {
+    console.warn('Erro ao salvar estado:', e);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    // Garantir que todos os dias existam (caso adicione novo dia no futuro)
+    const scheduleByDay = saved.scheduleByDay || makeDefaultScheduleByDay();
+    DAY_KEYS.forEach(k => {
+      if (!scheduleByDay[k]) scheduleByDay[k] = makeDefaultSchedule();
+    });
+    return {
+      user:            saved.user || null,
+      activeAreas:     new Set(saved.activeAreas || AREAS.map(a=>a.id)),
+      scheduleByDay,
+      selectedCronDay: saved.selectedCronDay || 'seg',
+      editingSchedId:  null,
+    };
+  } catch(e) {
+    console.warn('Erro ao carregar estado:', e);
+    return null;
+  }
+}
+
+function clearStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ═══════════════════════════════════════
+STATE — carrega do localStorage ou usa padrão
+═══════════════════════════════════════ */
+let state = loadState() || {
   user: null,
-  activeAreas: new Set(['estudos','trabalho','familia','saude','lazer','financas']),
-  // Cada dia tem seu próprio array de blocos
-  scheduleByDay: {
-    dom: makeDefaultSchedule(),
-    seg: makeDefaultSchedule(),
-    ter: makeDefaultSchedule(),
-    qua: makeDefaultSchedule(),
-    qui: makeDefaultSchedule(),
-    sex: makeDefaultSchedule(),
-    sab: makeDefaultSchedule(),
-  },
+  activeAreas: new Set(AREAS.map(a=>a.id)),
+  scheduleByDay: makeDefaultScheduleByDay(),
   selectedCronDay: 'seg',
   editingSchedId: null,
 };
@@ -84,6 +128,7 @@ function doDemo() { loginUser({ name:'Demo', email:'demo@kronos.app' }); }
 
 function loginUser(user) {
   state.user = user;
+  saveState();
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('user-name').textContent = user.name;
@@ -94,13 +139,14 @@ function loginUser(user) {
 
 function doLogout() {
   state.user = null;
+  saveState();
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('app').classList.remove('visible');
   toast('Sessão encerrada.','info');
 }
 
 /* ═══════════════════════════════════════
-NAVIGATION
+NAVEGAÇÃO
 ═══════════════════════════════════════ */
 function setView(v) {
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
@@ -145,6 +191,7 @@ function renderSidebarAreas() {
 function toggleArea(id) {
   if (state.activeAreas.has(id)) state.activeAreas.delete(id);
   else state.activeAreas.add(id);
+  saveState();
   render();
 }
 
@@ -152,21 +199,19 @@ function toggleArea(id) {
 CRONOGRAMA — ABAS DE DIAS
 ═══════════════════════════════════════ */
 function initCronDayTabs() {
-  // Detectar dia atual e selecionar
-  const todayIdx = new Date().getDay(); // 0=dom
-  selectCronDay(DAY_KEYS[todayIdx]);
+  const key = state.selectedCronDay;
+  selectCronDay(key);
 }
 
 function selectCronDay(key) {
   state.selectedCronDay = key;
+  saveState();
 
-  // Atualizar botões
   DAY_KEYS.forEach(k => {
     const btn = document.getElementById('ctab-'+k);
     if (btn) btn.classList.toggle('active', k===key);
   });
 
-  // Título
   const idx = DAY_KEYS.indexOf(key);
   const titleEl = document.getElementById('cron-day-title');
   if (titleEl) titleEl.textContent = DAY_FULL[idx];
@@ -258,6 +303,8 @@ function saveScheduleBlock() {
     state.scheduleByDay[dayKey].sort((a,b)=>a.time.localeCompare(b.time));
     toast('Bloco adicionado!','success');
   }
+
+  saveState();
   closeModal('modal-sched');
   renderSchedule();
 }
@@ -265,8 +312,30 @@ function saveScheduleBlock() {
 function deleteScheduleBlock(id) {
   const dayKey = state.selectedCronDay;
   state.scheduleByDay[dayKey] = (state.scheduleByDay[dayKey]||[]).filter(s=>s.id!==id);
+  saveState();
   renderSchedule();
   toast('Bloco removido.','info');
+}
+
+/* ═══════════════════════════════════════
+RESET — restaurar cronograma padrão
+═══════════════════════════════════════ */
+function resetDaySchedule() {
+  const dayKey = state.selectedCronDay;
+  const dayName = DAY_FULL[DAY_KEYS.indexOf(dayKey)];
+  if (!confirm(`Restaurar o cronograma padrão para ${dayName}? Todas as alterações do dia serão perdidas.`)) return;
+  state.scheduleByDay[dayKey] = makeDefaultSchedule();
+  saveState();
+  renderSchedule();
+  toast(`Cronograma de ${dayName} restaurado.`, 'info');
+}
+
+function resetAllSchedules() {
+  if (!confirm('Restaurar o cronograma padrão para TODOS os dias? Todas as alterações serão perdidas.')) return;
+  state.scheduleByDay = makeDefaultScheduleByDay();
+  saveState();
+  renderSchedule();
+  toast('Todos os cronogramas foram restaurados.', 'info');
 }
 
 /* ═══════════════════════════════════════
@@ -300,6 +369,21 @@ function render() {
   initCronDayTabs();
 }
 
-updateClock();
-setInterval(updateClock, 15000);
-updateDateSubtitle();
+/* ═══════════════════════════════════════
+INICIALIZAÇÃO — restaura sessão se existir
+═══════════════════════════════════════ */
+(function init() {
+  updateClock();
+  setInterval(updateClock, 15000);
+  updateDateSubtitle();
+
+  if (state.user) {
+    // Usuário já estava logado — restaura sessão automaticamente
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('user-name').textContent = state.user.name;
+    document.getElementById('user-avatar').textContent = state.user.name.charAt(0).toUpperCase();
+    toast('Sessão restaurada. Bem-vindo(a) de volta, ' + state.user.name + '!', 'success');
+    render();
+  }
+})();
