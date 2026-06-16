@@ -2,42 +2,110 @@
 DATA
 ═══════════════════════════════════════ */
 const AREAS = [
-  { id:'trabalho', label:'Trabalho', color:'#3A9BDC', bg:'rgba(58,155,220,0.14)',  dark:'#7EC8F4' },
-  { id:'familia',  label:'Família',  color:'#E063A8', bg:'rgba(224,99,168,0.14)',  dark:'#F4A0CE' },
-  { id:'saude',    label:'Saúde',    color:'#1DB974', bg:'rgba(29,185,116,0.14)',  dark:'#5DDBA0' },
-  { id:'estudos',  label:'Estudos',  color:'#6C63FF', bg:'rgba(108,99,255,0.14)',  dark:'#A29BFF' },
-  { id:'lazer',    label:'Lazer',    color:'#F0A640', bg:'rgba(240,166,64,0.14)',  dark:'#FFCB6B' },
-  { id:'financas', label:'Finanças', color:'#14C8A8', bg:'rgba(20,200,168,0.14)', dark:'#5EECD6' },
+  { id:'trabalho',   label:'Trabalho',   color:'#3A9BDC', bg:'rgba(58,155,220,0.14)',  dark:'#7EC8F4' },
+  { id:'familia',    label:'Família',    color:'#E063A8', bg:'rgba(224,99,168,0.14)',  dark:'#F4A0CE' },
+  { id:'saude',      label:'Saúde',      color:'#1DB974', bg:'rgba(29,185,116,0.14)',  dark:'#5DDBA0' },
+  { id:'estudos',    label:'Estudos',    color:'#6C63FF', bg:'rgba(108,99,255,0.14)',  dark:'#A29BFF' },
+  { id:'lazer',      label:'Lazer',      color:'#F0A640', bg:'rgba(240,166,64,0.14)',  dark:'#FFCB6B' },
+  { id:'financas',   label:'Finanças',   color:'#14C8A8', bg:'rgba(20,200,168,0.14)',  dark:'#5EECD6' },
+  { id:'espiritual', label:'Espiritual', color:'#A67AF4', bg:'rgba(166,122,244,0.14)', dark:'#C9AEFB' },
 ];
 
-const SCHEDULE_WEEKDAY = [
-  { time:'06:30', title:'Ritual de início',           dur:'30 min', area:null,       desc:'Água, alongamento, sem celular. Prepare a mente.' },
-  { time:'07:00', title:'Bloco de estudos — foco',    dur:'90 min', area:'estudos',  desc:'Melhor janela cognitiva do dia. Conteúdo mais difícil aqui.' },
-  { time:'08:30', title:'Trabalho — urgentes',        dur:'90 min', area:'trabalho', desc:'Responda o que bloqueia outras pessoas primeiro.' },
-  { time:'10:00', title:'Pausa ativa',                dur:'20 min', area:null,       desc:'Caminhe, tome café. Não pule essa pausa.' },
-  { time:'10:20', title:'Trabalho — bloco principal', dur:'2h',     area:'trabalho', desc:'Reuniões e entregas. Agrupe tudo nessa faixa.' },
-  { time:'12:20', title:'Almoço + descanso',          dur:'1h',     area:null,       desc:'Longe de telas. Recarregue para a tarde.' },
-  { time:'13:20', title:'Estudos — revisão leve',     dur:'60 min', area:'estudos',  desc:'Leitura técnica ou revisão do que estudou de manhã.' },
-  { time:'14:20', title:'Trabalho — operacional',     dur:'2h',     area:'trabalho', desc:'Tarefas de execução, sem precisar de muito foco criativo.' },
-  { time:'16:20', title:'Encerramento do trabalho',   dur:'10 min', area:null,       desc:'Anote pendências. Feche conscientemente o trabalho.' },
-  { time:'16:30', title:'Família',                    dur:'2h',     area:'familia',  desc:'Jantar, conversa, presença. Telefone no silencioso.' },
-  { time:'20:30', title:'Lazer',                      dur:'1h',     area:'lazer',    desc:'Série, livro por prazer. Algo que você escolhe livremente.' },
-  { time:'22:00', title:'Ritual de encerramento',     dur:'30 min', area:null,       desc:'Sem telas, leitura leve. Prepare o sono.' },
+/* ───────────────────────────────────────
+   Cronogramas padrão — um por dia da semana,
+   baseados na rotina enviada pelo usuário.
+   ─────────────────────────────────────── */
+const SCHEDULE_SEG = [
+  { time:'05:00', title:'Oração e leitura da Bíblia',        dur:'1h',    area:'espiritual', desc:'Comece o dia com oração e leitura da Bíblia.' },
+  { time:'06:00', title:'Café da manhã e preparação',        dur:'1h',    area:null,         desc:'Café da manhã, arrumar a casa rapidamente e se preparar para o dia.' },
+  { time:'07:00', title:'Levar filha',                       dur:'40 min',area:'familia',    desc:'Levar a filha (se estiver com ela neste dia).' },
+  { time:'08:00', title:'Academia + deslocamentos',          dur:'1h30',  area:'saude',      desc:'Treino e deslocamentos.' },
+  { time:'09:30', title:'Banho e refeição',                  dur:'1h',    area:null,         desc:'Banho e refeição após o treino.' },
+  { time:'10:30', title:'Inglês',                            dur:'1h',    area:'estudos',    desc:'Estudo de inglês.' },
+  { time:'12:30', title:'Trabalho',                          dur:'7h30',  area:'trabalho',   desc:'Bloco principal de trabalho.' },
+  { time:'20:20', title:'Jantar',                            dur:'40 min',area:null,         desc:'Jantar.' },
+  { time:'21:00', title:'Dormir',                            dur:'',      area:null,         desc:'Hora de dormir e descansar.' },
 ];
+
+const SCHEDULE_TER = [
+  { time:'05:00', title:'Oração e leitura da Bíblia',        dur:'1h',    area:'espiritual', desc:'Comece o dia com oração e leitura da Bíblia.' },
+  { time:'06:00', title:'Café da manhã e preparação',        dur:'1h',    area:null,         desc:'Café da manhã, arrumar a casa rapidamente e se preparar para o dia.' },
+  { time:'07:00', title:'Levar filha',                       dur:'40 min',area:'familia',    desc:'Levar a filha (se estiver com ela neste dia).' },
+  { time:'08:00', title:'Academia + deslocamentos',          dur:'1h30',  area:'saude',      desc:'Treino e deslocamentos.' },
+  { time:'09:30', title:'Banho e refeição',                  dur:'1h',    area:null,         desc:'Banho e refeição após o treino.' },
+  { time:'10:30', title:'Programação',                       dur:'1h',    area:'estudos',    desc:'Estudo de programação.' },
+  { time:'12:30', title:'Trabalho',                          dur:'7h30',  area:'trabalho',   desc:'Bloco principal de trabalho.' },
+  { time:'20:20', title:'Jantar',                            dur:'40 min',area:null,         desc:'Jantar.' },
+  { time:'21:00', title:'Dormir',                            dur:'',      area:null,         desc:'Hora de dormir e descansar.' },
+];
+
+const SCHEDULE_QUA = [
+  { time:'05:00', title:'Oração e leitura da Bíblia',        dur:'1h',    area:'espiritual', desc:'Comece o dia com oração e leitura da Bíblia.' },
+  { time:'06:00', title:'Café da manhã e preparação',        dur:'1h',    area:null,         desc:'Café da manhã, arrumar a casa rapidamente e se preparar para o dia.' },
+  { time:'07:00', title:'Levar filha',                       dur:'40 min',area:'familia',    desc:'Levar a filha (se estiver com ela neste dia).' },
+  { time:'08:00', title:'Academia + deslocamentos',          dur:'1h30',  area:'saude',      desc:'Treino e deslocamentos.' },
+  { time:'09:30', title:'Banho e refeição',                  dur:'1h',    area:null,         desc:'Banho e refeição após o treino.' },
+  { time:'10:30', title:'Inglês',                            dur:'1h',    area:'estudos',    desc:'Estudo de inglês.' },
+  { time:'12:30', title:'Trabalho',                          dur:'7h30',  area:'trabalho',   desc:'Bloco principal de trabalho.' },
+  { time:'20:20', title:'Jantar',                            dur:'40 min',area:null,         desc:'Jantar.' },
+  { time:'21:00', title:'Dormir',                            dur:'',      area:null,         desc:'Hora de dormir e descansar.' },
+];
+
+const SCHEDULE_QUI = [
+  { time:'05:00', title:'Oração e leitura da Bíblia',        dur:'1h',    area:'espiritual', desc:'Comece o dia com oração e leitura da Bíblia.' },
+  { time:'06:00', title:'Café da manhã e preparação',        dur:'1h',    area:null,         desc:'Café da manhã, arrumar a casa rapidamente e se preparar para o dia.' },
+  { time:'08:00', title:'Programação',                       dur:'2h30',  area:'estudos',    desc:'Estudo de programação.' },
+  { time:'10:30', title:'Curso',                             dur:'1h',    area:'estudos',    desc:'Curso.' },
+  { time:'12:30', title:'Trabalho',                          dur:'7h30',  area:'trabalho',   desc:'Bloco principal de trabalho.' },
+  { time:'20:20', title:'Jantar',                            dur:'40 min',area:null,         desc:'Jantar.' },
+  { time:'21:00', title:'Dormir',                            dur:'',      area:null,         desc:'Hora de dormir e descansar.' },
+];
+
+const SCHEDULE_SEX = [
+  { time:'05:00', title:'Oração e leitura da Bíblia',        dur:'1h',    area:'espiritual', desc:'Comece o dia com oração e leitura da Bíblia.' },
+  { time:'06:00', title:'Café da manhã e preparação',        dur:'1h',    area:null,         desc:'Café da manhã, arrumar a casa rapidamente e se preparar para o dia.' },
+  { time:'08:00', title:'Inglês',                            dur:'1h',    area:'estudos',    desc:'Estudo de inglês.' },
+  { time:'09:00', title:'Programação',                       dur:'2h',    area:'estudos',    desc:'Estudo de programação.' },
+  { time:'12:30', title:'Trabalho',                          dur:'7h30',  area:'trabalho',   desc:'Bloco principal de trabalho.' },
+  { time:'20:20', title:'Jantar',                            dur:'40 min',area:null,         desc:'Jantar.' },
+  { time:'21:00', title:'Dormir',                            dur:'',      area:null,         desc:'Hora de dormir e descansar.' },
+];
+
+const SCHEDULE_SAB = [
+  { time:'Manhã',           title:'Trabalho',                      dur:'',     area:'trabalho', desc:'Período da manhã dedicado ao trabalho.' },
+  { time:'15:30',           title:'Mercado e organização da casa',  dur:'1h30', area:null,        desc:'Mercado, limpeza da casa, roupas e organização.' },
+  { time:'Restante do dia', title:'Filha ou lazer',                 dur:'',     area:null,        desc:'Tempo livre com a filha ou para lazer.' },
+];
+
+const SCHEDULE_DOM = [
+  { time:'Dia todo', title:'Prioridade total',  dur:'',  area:'familia', desc:'Filha, família, igreja (se fizer parte da sua rotina) e descanso.' },
+  { time:'18:00',     title:'Planejar a semana', dur:'1h', area:null,     desc:'Separar roupas e organizar as refeições da semana.' },
+];
+
+const DEFAULT_SCHEDULES = {
+  dom: SCHEDULE_DOM,
+  seg: SCHEDULE_SEG,
+  ter: SCHEDULE_TER,
+  qua: SCHEDULE_QUA,
+  qui: SCHEDULE_QUI,
+  sex: SCHEDULE_SEX,
+  sab: SCHEDULE_SAB,
+};
 
 const DAY_KEYS  = ['dom','seg','ter','qua','qui','sex','sab'];
 const DAY_FULL  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 const MONTH_FULL= ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
-const STORAGE_KEY = 'gestaoDeTempo_v1';
+const STORAGE_KEY = 'gestaoDeTempo_v2';
 
-function makeDefaultSchedule() {
-  return JSON.parse(JSON.stringify(SCHEDULE_WEEKDAY)).map((s,i) => ({ ...s, id: i+1 }));
+function makeDefaultSchedule(dayKey) {
+  const base = DEFAULT_SCHEDULES[dayKey] || [];
+  return JSON.parse(JSON.stringify(base)).map((s,i) => ({ ...s, id: i+1 }));
 }
 
 function makeDefaultScheduleByDay() {
   const obj = {};
-  DAY_KEYS.forEach(k => { obj[k] = makeDefaultSchedule(); });
+  DAY_KEYS.forEach(k => { obj[k] = makeDefaultSchedule(k); });
   return obj;
 }
 
@@ -66,7 +134,7 @@ function loadState() {
     // Garantir que todos os dias existam (caso adicione novo dia no futuro)
     const scheduleByDay = saved.scheduleByDay || makeDefaultScheduleByDay();
     DAY_KEYS.forEach(k => {
-      if (!scheduleByDay[k]) scheduleByDay[k] = makeDefaultSchedule();
+      if (!scheduleByDay[k]) scheduleByDay[k] = makeDefaultSchedule(k);
     });
     return {
       user:            saved.user || null,
@@ -324,7 +392,7 @@ function resetDaySchedule() {
   const dayKey = state.selectedCronDay;
   const dayName = DAY_FULL[DAY_KEYS.indexOf(dayKey)];
   if (!confirm(`Restaurar o cronograma padrão para ${dayName}? Todas as alterações do dia serão perdidas.`)) return;
-  state.scheduleByDay[dayKey] = makeDefaultSchedule();
+  state.scheduleByDay[dayKey] = makeDefaultSchedule(dayKey);
   saveState();
   renderSchedule();
   toast(`Cronograma de ${dayName} restaurado.`, 'info');
