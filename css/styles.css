@@ -1039,3 +1039,265 @@ transition: all 0.15s;
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* ═══════════════════════════════════════
+WEEKLY TABS LAYOUT (SEMANAL)
+═══════════════════════════════════════ */
+.weekly-tabs-layout {
+  display: flex;
+  gap: 0;
+  min-height: 520px;
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* Sidebar vertical dos dias */
+.day-tabs-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 72px;
+  min-width: 72px;
+  background: var(--surface2);
+  border-right: 1px solid var(--border);
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.day-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all 0.18s;
+  position: relative;
+  font-family: inherit;
+}
+
+.day-tab-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.day-tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 0;
+}
+
+.day-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--accent2);
+  border-radius: 2px 0 0 2px;
+}
+
+.day-tab-short {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.day-tab-num {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Conteúdo do dia */
+.day-tab-content {
+  flex: 1;
+  padding: 20px 22px;
+  overflow-y: auto;
+}
+
+.day-tab-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.day-tab-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.day-tab-date {
+  font-size: 13px;
+  color: var(--text3);
+}
+
+/* Itens do cronograma na aba do dia */
+.day-sched-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: opacity 0.15s;
+}
+
+.day-sched-item:hover { opacity: 0.9; }
+
+.day-sched-time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  min-width: 40px;
+  padding-top: 2px;
+  letter-spacing: 0.3px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.day-sched-body {
+  flex: 1;
+}
+
+.day-sched-title {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.day-sched-dur {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text3);
+  background: rgba(255,255,255,0.06);
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+
+.day-sched-desc {
+  font-size: 11px;
+  margin-top: 3px;
+  line-height: 1.5;
+}
+
+/* Seção de tarefas dentro da aba do dia */
+.day-tasks-section {
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+  .day-tabs-sidebar { width: 56px; min-width: 56px; }
+  .day-tab-num { font-size: 15px; }
+  .day-tab-content { padding: 14px 14px; }
+}
+
+/* ═══════════════════════════════════════
+CRONOGRAMA COM ABAS VERTICAIS
+═══════════════════════════════════════ */
+.weekly-tabs-layout {
+  display: flex;
+  gap: 0;
+  min-height: 520px;
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.day-tabs-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 68px;
+  min-width: 68px;
+  background: var(--surface2);
+  border-right: 1px solid var(--border);
+  padding: 6px 0;
+}
+
+.day-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  transition: all 0.16s;
+  font-family: inherit;
+  position: relative;
+}
+
+.day-tab-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.day-tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.day-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 55%;
+  background: var(--accent2, #a78bfa);
+  border-radius: 2px 0 0 2px;
+}
+
+.day-tab-short {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.day-tab-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.day-tab-header {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.day-tab-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+@media (max-width: 820px) {
+  .day-tabs-sidebar { width: 52px; min-width: 52px; }
+  .day-tab-content  { padding: 14px 14px; }
+  .day-tab-short    { font-size: 10px; }
+}
