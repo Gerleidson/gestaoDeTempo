@@ -1041,45 +1041,50 @@ transition: all 0.15s;
 ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
 
 /* ═══════════════════════════════════════
-WEEKLY TABS LAYOUT (SEMANAL)
+WEEKLY TABS LAYOUT — ABAS HORIZONTAIS
 ═══════════════════════════════════════ */
 .weekly-tabs-layout {
   display: flex;
-  gap: 0;
+  flex-direction: column;
   min-height: 520px;
   background: var(--surface);
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--border);
+  margin-top: 4px;
 }
 
-/* Sidebar vertical dos dias */
-.day-tabs-sidebar {
+/* Barra horizontal de dias */
+.day-tabs-bar {
   display: flex;
-  flex-direction: column;
-  width: 72px;
-  min-width: 72px;
+  flex-direction: row;
   background: var(--surface2);
-  border-right: 1px solid var(--border);
-  padding: 8px 0;
-  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.day-tabs-bar::-webkit-scrollbar { display: none; }
 
 .day-tab-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 10px 6px;
+  flex: 1;
+  min-width: 56px;
+  padding: 12px 8px;
   background: transparent;
   border: none;
-  border-radius: 0;
+  border-bottom: 3px solid transparent;
   cursor: pointer;
   color: var(--text3);
   transition: all 0.18s;
-  position: relative;
   font-family: inherit;
+  position: relative;
+  white-space: nowrap;
 }
 
 .day-tab-btn:hover {
@@ -1088,27 +1093,15 @@ WEEKLY TABS LAYOUT (SEMANAL)
 }
 
 .day-tab-btn.active {
-  background: var(--accent);
-  color: #fff;
-  border-radius: 0;
-}
-
-.day-tab-btn.active::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: var(--accent2);
-  border-radius: 2px 0 0 2px;
+  background: var(--accent-bg);
+  color: var(--accent2);
+  border-bottom-color: var(--accent);
 }
 
 .day-tab-short {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
@@ -1122,7 +1115,7 @@ WEEKLY TABS LAYOUT (SEMANAL)
 /* Conteúdo do dia */
 .day-tab-content {
   flex: 1;
-  padding: 20px 22px;
+  padding: 20px 24px;
   overflow-y: auto;
 }
 
@@ -1130,13 +1123,13 @@ WEEKLY TABS LAYOUT (SEMANAL)
   display: flex;
   align-items: baseline;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .day-tab-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text);
   font-family: 'Space Grotesk', sans-serif;
@@ -1147,7 +1140,7 @@ WEEKLY TABS LAYOUT (SEMANAL)
   color: var(--text3);
 }
 
-/* Itens do cronograma na aba do dia */
+/* Itens do cronograma */
 .day-sched-item {
   display: flex;
   gap: 12px;
@@ -1157,7 +1150,6 @@ WEEKLY TABS LAYOUT (SEMANAL)
   margin-bottom: 6px;
   transition: opacity 0.15s;
 }
-
 .day-sched-item:hover { opacity: 0.9; }
 
 .day-sched-time {
@@ -1170,9 +1162,7 @@ WEEKLY TABS LAYOUT (SEMANAL)
   font-family: 'Space Grotesk', sans-serif;
 }
 
-.day-sched-body {
-  flex: 1;
-}
+.day-sched-body { flex: 1; }
 
 .day-sched-title {
   font-size: 13px;
@@ -1197,107 +1187,11 @@ WEEKLY TABS LAYOUT (SEMANAL)
   line-height: 1.5;
 }
 
-/* Seção de tarefas dentro da aba do dia */
-.day-tasks-section {
-  margin-top: 8px;
-}
+.day-tasks-section { margin-top: 8px; }
 
 /* Responsive */
 @media (max-width: 820px) {
-  .day-tabs-sidebar { width: 56px; min-width: 56px; }
-  .day-tab-num { font-size: 15px; }
+  .day-tab-btn { min-width: 44px; padding: 10px 4px; }
+  .day-tab-short { font-size: 10px; }
   .day-tab-content { padding: 14px 14px; }
-}
-
-/* ═══════════════════════════════════════
-CRONOGRAMA COM ABAS VERTICAIS
-═══════════════════════════════════════ */
-.weekly-tabs-layout {
-  display: flex;
-  gap: 0;
-  min-height: 520px;
-  background: var(--surface);
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  margin-top: 4px;
-}
-
-.day-tabs-sidebar {
-  display: flex;
-  flex-direction: column;
-  width: 68px;
-  min-width: 68px;
-  background: var(--surface2);
-  border-right: 1px solid var(--border);
-  padding: 6px 0;
-}
-
-.day-tab-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 13px 6px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--text3);
-  transition: all 0.16s;
-  font-family: inherit;
-  position: relative;
-}
-
-.day-tab-btn:hover {
-  background: rgba(255,255,255,0.05);
-  color: var(--text);
-}
-
-.day-tab-btn.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-.day-tab-btn.active::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 55%;
-  background: var(--accent2, #a78bfa);
-  border-radius: 2px 0 0 2px;
-}
-
-.day-tab-short {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-}
-
-.day-tab-content {
-  flex: 1;
-  padding: 20px 24px;
-  overflow-y: auto;
-}
-
-.day-tab-header {
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-}
-
-.day-tab-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
-}
-
-@media (max-width: 820px) {
-  .day-tabs-sidebar { width: 52px; min-width: 52px; }
-  .day-tab-content  { padding: 14px 14px; }
-  .day-tab-short    { font-size: 10px; }
 }
