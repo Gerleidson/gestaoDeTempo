@@ -162,10 +162,18 @@ function saveState() { saveToFirestore(); }
 /* ═══════════════════════════════════════
 AUTH — Firebase
 ═══════════════════════════════════════ */
+function clearAuthForms() {
+  ['login-email','login-pass','reg-name','reg-email','reg-pass','reg-pass2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
 function switchAuthTab(tab) {
   document.querySelectorAll('.auth-tab').forEach((b, i) => b.classList.toggle('active', i === (tab === 'login' ? 0 : 1)));
   document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
+  clearAuthForms();
 }
 
 function setAuthLoading(loading) {
@@ -252,6 +260,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('app').classList.add('visible');
     document.getElementById('user-name').textContent    = name;
     document.getElementById('user-avatar').textContent  = name.charAt(0).toUpperCase();
+    clearAuthForms();
 
     // Verifica se já tem dados no Firestore
     const snap = await getDoc(doc(db, 'usuarios', user.uid));
@@ -511,7 +520,7 @@ function render() {
 EXPOR FUNÇÕES GLOBAIS (necessário para onclick no HTML)
 ═══════════════════════════════════════ */
 Object.assign(window, {
-  switchAuthTab, doLogin, doRegister, doLogout,
+  switchAuthTab, clearAuthForms, doLogin, doRegister, doLogout,
   setView, toggleArea,
   selectCronDay, openAddSchedule, openEditSchedule,
   saveScheduleBlock, deleteScheduleBlock, toggleScheduleDone,
