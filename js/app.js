@@ -96,11 +96,11 @@ const SCHEDULE_DOM = [
 ];
 
 const DEFAULT_SCHEDULES = { dom:SCHEDULE_DOM, seg:SCHEDULE_SEG, ter:SCHEDULE_TER, qua:SCHEDULE_QUA, qui:SCHEDULE_QUI, sex:SCHEDULE_SEX, sab:SCHEDULE_SAB };
-const DAY_KEYS  = ['dom','seg','ter','qua','qui','sex','sab'];
-const DAY_FULL  = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const DAY_KEYS = ['dom','seg','ter','qua','qui','sex','sab'];
+const DAY_FULL = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 
 function makeDefaultSchedule(dayKey) {
-  return JSON.parse(JSON.stringify(DEFAULT_SCHEDULES[dayKey] || [])).map((s,i) => ({ ...s, id: i+1, done: false }));
+  return JSON.parse(JSON.stringify(DEFAULT_SCHEDULES[dayKey] || [])).map((s, i) => ({ ...s, id: i + 1, done: false }));
 }
 function makeDefaultScheduleByDay() {
   const obj = {};
@@ -119,16 +119,18 @@ let state = {
   editingSchedId:  null,
 };
 
-let unsubscribeFirestore = null; // listener em tempo real
+// Flag para evitar que o onSnapshot dispare saveState em loop
+let _savingToFirestore = false;
+let unsubscribeFirestore = null;
 
 /* ═══════════════════════════════════════
 FIRESTORE — salvar / carregar
 ═══════════════════════════════════════ */
 async function saveToFirestore() {
   if (!auth.currentUser) return;
-  const uid = auth.currentUser.uid;
+  _savingToFirestore = true;
   try {
-    await setDoc(doc(db, 'usuarios', uid), {
+    await setDoc(doc(db, 'usuarios', auth.currentUser.uid), {
       activeAreas:     [...state.activeAreas],
       scheduleByDay:   state.scheduleByDay,
       selectedCronDay: state.selectedCronDay,
@@ -137,18 +139,23 @@ async function saveToFirestore() {
   } catch (e) {
     console.warn('Erro ao salvar no Firestore:', e);
     toast('Erro ao salvar dados.', 'error');
+  } finally {
+    // Pequena janela para o onSnapshot local não re-renderizar desnecessariamente
+    setTimeout(() => { _savingToFirestore = false; }, 500);
   }
 }
 
 function subscribeFirestore(uid) {
   if (unsubscribeFirestore) unsubscribeFirestore();
   unsubscribeFirestore = onSnapshot(doc(db, 'usuarios', uid), (snap) => {
+    // Ignora updates originados pelo próprio saveToFirestore (evita loop)
+    if (_savingToFirestore) return;
     if (!snap.exists()) return;
+
     const data = snap.data();
     state.activeAreas     = new Set(data.activeAreas || AREAS.map(a => a.id));
     state.scheduleByDay   = data.scheduleByDay || makeDefaultScheduleByDay();
     state.selectedCronDay = data.selectedCronDay || 'seg';
-    // Garante que todos os dias existam
     DAY_KEYS.forEach(k => {
       if (!state.scheduleByDay[k]) state.scheduleByDay[k] = makeDefaultSchedule(k);
     });
@@ -156,7 +163,7 @@ function subscribeFirestore(uid) {
   });
 }
 
-// Alias para manter compatibilidade com chamadas internas
+// Alias usado internamente — salva sem loop
 function saveState() { saveToFirestore(); }
 
 /* ═══════════════════════════════════════
@@ -176,11 +183,11 @@ function switchAuthTab(tab) {
   clearAuthForms();
 }
 
+// BUG CORRIGIDO: escopo restrito ao auth-card para não desabilitar botões do app
 function setAuthLoading(loading) {
-  document.querySelectorAll('.btn-primary, .btn-secondary').forEach(b => {
+  document.querySelectorAll('.auth-card .btn-primary, .auth-card .btn-secondary').forEach(b => {
     b.disabled = loading;
-    if (loading) b.style.opacity = '0.6';
-    else b.style.opacity = '';
+    b.style.opacity = loading ? '0.6' : '';
   });
 }
 
@@ -191,7 +198,7 @@ async function doLogin() {
   setAuthLoading(true);
   try {
     await signInWithEmailAndPassword(auth, email, pass);
-    // onAuthStateChanged cuida do resto
+    // onAuthStateChanged cuida de mostrar o app e limpar formulários
   } catch (e) {
     toast(firebaseAuthError(e.code), 'error');
     setAuthLoading(false);
@@ -217,39 +224,39 @@ async function doRegister() {
       selectedCronDay: state.selectedCronDay,
       updatedAt:       new Date().toISOString(),
     });
-    toast('Conta criada! Bem-vindo(a), ' + name + '!', 'success');
+    // onAuthStateChanged assume daqui em diante
   } catch (e) {
     toast(firebaseAuthError(e.code), 'error');
     setAuthLoading(false);
   }
 }
 
+// BUG CORRIGIDO: deixa APENAS o onAuthStateChanged controlar a UI
 async function doLogout() {
   if (unsubscribeFirestore) { unsubscribeFirestore(); unsubscribeFirestore = null; }
-  await signOut(auth);
   state.user          = null;
   state.scheduleByDay = makeDefaultScheduleByDay();
   state.activeAreas   = new Set(AREAS.map(a => a.id));
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('app').classList.remove('visible');
+  await signOut(auth);
+  // onAuthStateChanged (user=null) esconderá o app e exibirá o login
   toast('Sessão encerrada.', 'info');
 }
 
 function firebaseAuthError(code) {
   const msgs = {
-    'auth/user-not-found':      'E-mail não encontrado.',
-    'auth/wrong-password':      'Senha incorreta.',
-    'auth/invalid-credential':  'E-mail ou senha inválidos.',
-    'auth/email-already-in-use':'E-mail já cadastrado.',
-    'auth/weak-password':       'Senha muito fraca.',
-    'auth/invalid-email':       'E-mail inválido.',
-    'auth/too-many-requests':   'Muitas tentativas. Tente novamente mais tarde.',
+    'auth/user-not-found':         'E-mail não encontrado.',
+    'auth/wrong-password':         'Senha incorreta.',
+    'auth/invalid-credential':     'E-mail ou senha inválidos.',
+    'auth/email-already-in-use':   'E-mail já cadastrado.',
+    'auth/weak-password':          'Senha muito fraca.',
+    'auth/invalid-email':          'E-mail inválido.',
+    'auth/too-many-requests':      'Muitas tentativas. Tente novamente mais tarde.',
     'auth/network-request-failed': 'Sem conexão. Verifique sua internet.',
   };
   return msgs[code] || 'Erro de autenticação. Tente novamente.';
 }
 
-// Observa mudanças de autenticação — ponto central de entrada
+// Ponto central de controle da UI de auth — único lugar que mostra/esconde telas
 onAuthStateChanged(auth, async (user) => {
   setAuthLoading(false);
   if (user) {
@@ -258,18 +265,16 @@ onAuthStateChanged(auth, async (user) => {
 
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').classList.add('visible');
-    document.getElementById('user-name').textContent    = name;
-    document.getElementById('user-avatar').textContent  = name.charAt(0).toUpperCase();
+    document.getElementById('user-name').textContent   = name;
+    document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
     clearAuthForms();
 
-    // Verifica se já tem dados no Firestore
+    // Verifica se já tem dados no Firestore (primeiro acesso)
     const snap = await getDoc(doc(db, 'usuarios', user.uid));
     if (!snap.exists()) {
-      // Primeiro login — salva cronograma padrão
       await saveToFirestore();
     }
 
-    // Abre listener em tempo real (sincroniza automaticamente)
     subscribeFirestore(user.uid);
     toast('Bem-vindo(a), ' + name + '!', 'success');
   } else {
@@ -332,23 +337,22 @@ function toggleArea(id) {
 CRONOGRAMA — ABAS DE DIAS
 ═══════════════════════════════════════ */
 function initCronDayTabs() {
-  selectCronDay(state.selectedCronDay);
-}
-
-function selectCronDay(key) {
-  state.selectedCronDay = key;
-
+  const key = state.selectedCronDay;
   DAY_KEYS.forEach(k => {
     const btn = document.getElementById('ctab-' + k);
     if (btn) btn.classList.toggle('active', k === key);
   });
-
   const idx = DAY_KEYS.indexOf(key);
   const titleEl = document.getElementById('cron-day-title');
   if (titleEl) titleEl.textContent = DAY_FULL[idx];
-
   renderSchedule();
-  saveState(); // persiste dia selecionado
+}
+
+// BUG CORRIGIDO: não chama saveState() ao trocar de aba — evita loop com onSnapshot
+function selectCronDay(key) {
+  state.selectedCronDay = key;
+  initCronDayTabs();
+  saveState(); // persiste apenas a preferência de dia, sem re-render via snapshot
 }
 
 /* ═══════════════════════════════════════
@@ -503,7 +507,7 @@ function updateClock() {
 function updateDateSubtitle() {
   const days   = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const now = new Date();
+  const now    = new Date();
   document.getElementById('page-subtitle').textContent =
     `${days[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}`;
 }
@@ -535,5 +539,5 @@ INICIALIZAÇÃO
   updateClock();
   setInterval(updateClock, 15000);
   updateDateSubtitle();
-  // onAuthStateChanged já cuida de mostrar/esconder telas
+  // onAuthStateChanged cuida de mostrar/esconder telas automaticamente
 })();
